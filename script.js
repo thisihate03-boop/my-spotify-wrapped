@@ -1,5 +1,6 @@
-const CLIENT_ID = "81b29ad7ea324719b369cd7ac9b2e080"; // replace with your Spotify client ID
-const REDIRECT_URI = window.location.href.split('#')[0];
+// Spotify App Config
+const CLIENT_ID = "81b29ad7ea324719b369cd7ac9b2e080"; 
+const REDIRECT_URI = "https://thisihate03-boop.github.io/my-spotify-wrapped/";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const RESPONSE_TYPE = "token";
 const SCOPES = "user-top-read";
