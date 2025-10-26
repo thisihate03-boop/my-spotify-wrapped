@@ -1,18 +1,16 @@
-// ==== Spotify Config ====
-const CLIENT_ID = "81b29ad7ea324719b369cd7ac9b2e080"; // your Spotify Client ID
+const CLIENT_ID = "81b29ad7ea324719b369cd7ac9b2e080";
 const REDIRECT_URI = "https://thisihate03-boop.github.io/my-spotify-wrapped/";
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize";
 const RESPONSE_TYPE = "token";
 const SCOPES = "user-top-read";
 
-// ==== DOM Elements ====
 const loginButton = document.getElementById("login-button");
 const statsDiv = document.getElementById("stats");
 const topArtistsList = document.getElementById("top-artists");
 const topTracksList = document.getElementById("top-tracks");
 const shareButton = document.getElementById("share-button");
 
-// ==== Login Handler ====
+// --- LOGIN HANDLER ---
 loginButton.addEventListener("click", () => {
   const url = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
@@ -20,28 +18,34 @@ loginButton.addEventListener("click", () => {
   window.location.href = url;
 });
 
-// ==== On Page Load ====
+// --- GET TOKEN FROM HASH OR LOCALSTORAGE ---
 window.addEventListener("load", () => {
-  const hash = window.location.hash;
-  if (hash && hash.includes("access_token")) {
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get("access_token");
-    console.log("Spotify token:", token);
+  let token = localStorage.getItem("spotify_token");
+
+  // if token isn't saved but hash exists
+  if (!token && window.location.hash) {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    token = params.get("access_token");
 
     if (token) {
-      loginButton.style.display = "none";
-      statsDiv.classList.remove("hidden");
-      shareButton.classList.remove("hidden");
-
-      fetchTopArtists(token);
-      fetchTopTracks(token);
+      localStorage.setItem("spotify_token", token);
+      window.location.hash = ""; // clean URL
     }
+  }
+
+  if (token) {
+    loginButton.style.display = "none";
+    statsDiv.classList.remove("hidden");
+    shareButton.classList.remove("hidden");
+    fetchTopArtists(token);
+    fetchTopTracks(token);
   } else {
-    console.log("No token found — please log in again.");
+    console.log("No token found. Please log in.");
   }
 });
 
-// ==== Fetch Top Artists ====
+// --- FETCH TOP ARTISTS ---
 function fetchTopArtists(token) {
   fetch("https://api.spotify.com/v1/me/top/artists?limit=10&time_range=short_term", {
     headers: { Authorization: `Bearer ${token}` },
@@ -60,7 +64,7 @@ function fetchTopArtists(token) {
     .catch((err) => console.error("Error fetching artists:", err));
 }
 
-// ==== Fetch Top Tracks ====
+// --- FETCH TOP TRACKS ---
 function fetchTopTracks(token) {
   fetch("https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=short_term", {
     headers: { Authorization: `Bearer ${token}` },
@@ -79,7 +83,7 @@ function fetchTopTracks(token) {
     .catch((err) => console.error("Error fetching tracks:", err));
 }
 
-// ==== Share Button ====
+// --- SHARE BUTTON ---
 shareButton.addEventListener("click", () => {
   if (navigator.share) {
     navigator.share({
